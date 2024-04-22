@@ -1,0 +1,20 @@
+#Windows 10 version
+- name: Windows 10
+  os: windows
+  build:
+    - cmd: echo "Hello, Windows!"
+
+#Password policy
+- name: Password Policy
+  os: windows
+  build:
+    - cmd: net accounts /maxpwage:180
+    - cmd: net accounts /minpwlen:8
+    - cmd: net accounts /uniquepw:1
+
+#Initial admin user
+- name: Initial Admin User
+  os: windows
+  build:
+    - cmd: net user /add catman password
+    - cmd: net localgroup administrators catman /add

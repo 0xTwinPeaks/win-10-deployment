@@ -1,0 +1,6 @@
+#Inventory file for the deployment
+---
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
