@@ -4,6 +4,13 @@
   build:
     - cmd: echo "Hello, Windows!"
 
+#Initial admin user
+- name: Initial Admin User
+  os: windows
+  build:
+    - cmd: net user /add catman password
+    - cmd: net localgroup administrators catman /add
+
 #Password policy
 - name: Password Policy
   os: windows
@@ -12,9 +19,23 @@
     - cmd: net accounts /minpwlen:8
     - cmd: net accounts /uniquepw:1
 
-#Initial admin user
-- name: Initial Admin User
+#Retrieve recommended GPO from Microsoft Security Compliance Toolkit (SCT) and apply it
+- name: Apply SCT GPO
   os: windows
   build:
-    - cmd: net user /add catman password
-    - cmd: net localgroup administrators catman /add
+    - cmd: Invoke-WebRequest -Uri "https://www.microsoft.com/en-us/download/confirmation.aspx?id=55319" -OutFile "C:\Users\catman\Downloads\Windows10andWindowsServer2016SecurityBaseline.zip"
+    - cmd: Expand-Archive -Path "C:\Users\catman\Downloads\Windows10andWindowsServer2016SecurityBaseline.zip" -DestinationPath "C:\Users\catman\Downloads\Windows10andWindowsServer2016SecurityBaseline"
+    - cmd: Import-Module "C:\Users\catman\Downloads\Windows10andWindowsServer2016SecurityBaseline\BaselineLocalGroupPolicy.psm1"
+    - cmd: Set-SecurityBaseline -LocalGpoPath "C:\Users\catman\Downloads\Windows10andWindowsServer2016SecurityBaseline\BaselineLocalGroupPolicy.xml"
+
+#Install Windows updates
+- name: Install Windows Updates
+  os: windows
+  build:
+    - cmd: wuauclt /updatenow
+
+#Remove bloat apps from Windows 10
+- name: Remove Bloat Apps
+  os: windows
+  build:
+    - cmd: Get-AppxPackage -AllUsers | Remove-AppxPackage
