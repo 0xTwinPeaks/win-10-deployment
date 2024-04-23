@@ -1,0 +1,68 @@
+---
+- name: Deploy Windows 10 Enterprise
+  hosts: inventory.ini
+  gather_facts: no
+  tasks:
+    - name: Install Chocolatey (optional)
+      win_shell: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
+    - name: Install required packages (customize as needed)
+      win_chocolatey:
+        name:
+          - chocolatey-core.extension
+          - chocolatey-windowsupdate.extension
+          - dotnetfx
+          - chocolatey-dotnetfx.extension
+          - vcredist2017
+          - vmware workstation
+          - ansible
+          - firefox
+          - googlechrome
+          - 7zip
+          - notepadplusplus
+          - openvpn
+          - putty
+          - openjdk
+          - git
+          - vscode
+          - docker-desktop
+          - slack
+          - zoom
+          - wsl
+          - office365
+          - adobereader
+          - zenmap
+          - wireshark
+          - python
+          - anaconda
+          - hashcat
+          - powershell
+          - flashplayerplugin
+          - openssh
+          - sysinternals
+          - sysmon
+          - awscli
+        state: present
+
+    - name: Download Windows 10 ISO (provide the URL)
+      win_get_url:
+        url: $Windows10EntISO
+        dest: "C:\\Temp\\Windows10.iso"
+
+    - name: Mount Windows 10 ISO
+      win_shell: |
+        Mount-DiskImage -ImagePath "C:\\Temp\\Windows10.iso"
+
+    - name: Install Windows 10 (customize as needed)
+      win_shell: |
+        Start-Process -Wait -FilePath "D:\\setup.exe" -ArgumentList "/Auto Upgrade /Quiet /NoReboot"
+
+    - name: Unmount Windows 10 ISO
+      win_shell: |
+        Dismount-DiskImage -ImagePath "C:\\Temp\\Windows10.iso"
+
+    - name: Reboot (optional)
+      win_reboot:
+        reboot_timeout: 300
+        msg: "Rebooting after Windows 10 installation"
